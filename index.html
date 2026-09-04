@@ -503,851 +503,703 @@
     <!-- =============================================================
          JAVASCRIPT
          ============================================================= -->
-
-    <script>
-
-        /*
-         * Numerical routines:
-         *
-         * - Regularized lower incomplete gamma P(a,x)
-         * - Central chi-square quantile
-         * - Noncentral chi-square CDF via Poisson mixture
-         * - Root solve for noncentrality λ giving requested power
-         *
-         * This keeps the calculator self-contained:
-         * no JavaScript library is required.
-         */
+<script>
+/* ============================================================
+   SEM RMSEA SAMPLE SIZE CALCULATOR
+   ============================================================ */
 
 
-        /* =============================================================
-           LOG GAMMA
-           ============================================================= */
+/* ============================================================
+   LOG GAMMA
+   ============================================================ */
 
-        function logGamma(z) {
+function logGamma(z) {
+    const c = [
+        676.5203681218851,
+        -1259.1392167224028,
+        771.32342877765313,
+        -176.61502916214059,
+        12.507343278686905,
+        -0.13857109526572012,
+        9.9843695780195716e-6,
+        1.5056327351493116e-7
+    ];
 
-            const c = [
-                676.5203681218851,
-                -1259.1392167224028,
-                771.32342877765313,
-                -176.61502916214059,
-                12.507343278686905,
-                -0.13857109526572012,
-                9.9843695780195716e-6,
-                1.5056327351493116e-7
-            ];
+    if (z < 0.5) {
+        return Math.log(Math.PI)
+            - Math.log(Math.sin(Math.PI * z))
+            - logGamma(1 - z);
+    }
 
-            if (z < 0.5) {
+    z -= 1;
 
-                return (
-                    Math.log(Math.PI)
-                    - Math.log(Math.sin(Math.PI * z))
-                    - logGamma(1 - z)
-                );
+    let x = 0.99999999999980993;
 
+    for (let i = 0; i < c.length; i++) {
+        x += c[i] / (z + i + 1);
+    }
+
+    const t = z + c.length - 0.5;
+
+    return 0.5 * Math.log(2 * Math.PI)
+        + (z + 0.5) * Math.log(t)
+        - t
+        + Math.log(x);
+}
+
+
+/* ============================================================
+   REGULARIZED LOWER INCOMPLETE GAMMA
+   ============================================================ */
+
+function gammaP(a, x) {
+    if (x <= 0) return 0;
+
+    /* Series expansion */
+    if (x < a + 1) {
+        let ap = a;
+        let sum = 1 / a;
+        let del = sum;
+
+        for (let n = 1; n <= 10000; n++) {
+            ap += 1;
+            del *= x / ap;
+            sum += del;
+
+            if (Math.abs(del) < Math.abs(sum) * 3e-14) {
+                break;
             }
-
-            z -= 1;
-
-            let x = 0.99999999999980993;
-
-            for (let i = 0; i < c.length; i++) {
-                x += c[i] / (z + i + 1);
-            }
-
-            const t = z + c.length - 0.5;
-
-            return (
-                0.5 * Math.log(2 * Math.PI)
-                + (z + 0.5) * Math.log(t)
-                - t
-                + Math.log(x)
-            );
         }
 
+        return sum * Math.exp(
+            -x + a * Math.log(x) - logGamma(a)
+        );
+    }
 
-        /* =============================================================
-           REGULARIZED LOWER INCOMPLETE GAMMA
-           ============================================================= */
+    /* Continued fraction */
+    let b = x + 1 - a;
+    let c = 1e300;
+    let d = 1 / b;
+    let h = d;
 
-        function gammaP(a, x) {
+    for (let i = 1; i <= 10000; i++) {
+        const an = -i * (i - a);
+        const bb = b + 2 * i;
 
-            if (x <= 0) {
-                return 0;
-            }
+        d = an * d + bb;
+        if (Math.abs(d) < 1e-300) d = 1e-300;
 
-            if (x < a + 1) {
+        c = bb + an / c;
+        if (Math.abs(c) < 1e-300) c = 1e-300;
 
-                let ap = a;
-                let sum = 1 / a;
-                let del = sum;
+        d = 1 / d;
 
-                for (let n = 1; n <= 10000; n++) {
+        const del = d * c;
+        h *= del;
 
-                    ap += 1;
-                    del *= x / ap;
-                    sum += del;
-
-                    if (
-                        Math.abs(del)
-                        < Math.abs(sum) * 3e-14
-                    ) {
-                        break;
-                    }
-                }
-
-                return (
-                    sum
-                    * Math.exp(
-                        -x
-                        + a * Math.log(x)
-                        - logGamma(a)
-                    )
-                );
-            }
-
-
-            let b = x + 1 - a;
-            let c = 1 / 1e-300;
-            let d = 1 / b;
-            let h = d;
-
-            for (let i = 1; i <= 10000; i++) {
-
-                const an = -i * (i - a);
-                const bb = b + 2 * i;
-
-                d = an * d + bb;
-
-                if (Math.abs(d) < 1e-300) {
-                    d = 1e-300;
-                }
-
-                c = bb + an / c;
-
-                if (Math.abs(c) < 1e-300) {
-                    c = 1e-300;
-                }
-
-                d = 1 / d;
-
-                const del = d * c;
-
-                h *= del;
-
-                if (Math.abs(del - 1) < 3e-14) {
-                    break;
-                }
-            }
-
-            return (
-                1
-                - Math.exp(
-                    -x
-                    + a * Math.log(x)
-                    - logGamma(a)
-                ) * h
-            );
+        if (Math.abs(del - 1) < 3e-14) {
+            break;
         }
+    }
+
+    return 1 - Math.exp(
+        -x + a * Math.log(x) - logGamma(a)
+    ) * h;
+}
 
 
-        /* =============================================================
-           CENTRAL CHI-SQUARE CDF
-           ============================================================= */
+/* ============================================================
+   CENTRAL CHI-SQUARE CDF
+   ============================================================ */
 
-        function chiSquareCDF(x, df) {
+function chiSquareCDF(x, df) {
+    return gammaP(df / 2, x / 2);
+}
 
-            return gammaP(
-                df / 2,
+
+/* ============================================================
+   CHI-SQUARE QUANTILE
+   ============================================================ */
+
+function chiSquareQuantile(p, df) {
+    let low = 0;
+    let high = Math.max(df, 1);
+
+    while (chiSquareCDF(high, df) < p) {
+        high *= 2;
+    }
+
+    for (let i = 0; i < 100; i++) {
+        const mid = (low + high) / 2;
+
+        if (chiSquareCDF(mid, df) < p) {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+
+    return (low + high) / 2;
+}
+
+
+/* ============================================================
+   NONCENTRAL CHI-SQUARE CDF
+   ============================================================ */
+
+function noncentralChiCDF(x, df, ncp) {
+    if (ncp <= 1e-12) {
+        return chiSquareCDF(x, df);
+    }
+
+    const mu = ncp / 2;
+    const mode = Math.floor(mu);
+
+    /*
+       Start at the Poisson mode.
+    */
+
+    let weight = Math.exp(
+        -mu +
+        mode * Math.log(mu) -
+        logGamma(mode + 1)
+    );
+
+    let sum =
+        weight *
+        gammaP(df / 2 + mode, x / 2);
+
+
+    /*
+       Forward recurrence
+    */
+
+    let w = weight;
+
+    for (let k = mode + 1; k < mode + 2000; k++) {
+        w *= mu / k;
+
+        const term =
+            w * gammaP(
+                df / 2 + k,
                 x / 2
             );
-        }
 
+        sum += term;
 
-        /* =============================================================
-           NORMAL INVERSE — ACKLAM APPROXIMATION
-           ============================================================= */
-
-        function normalInv(p) {
-
-            const a = [
-                -39.6968302866538,
-                220.946098424521,
-                -275.928510446969,
-                138.357751867269,
-                -30.6647980661472,
-                2.50662827745924
-            ];
-
-            const b = [
-                -54.4760987982241,
-                161.585836858041,
-                -155.698979859887,
-                66.8013118877197,
-                -13.2806815528857
-            ];
-
-            const c = [
-                -0.00778489400243029,
-                -0.322396458041136,
-                -2.40075827716184,
-                -2.54973253934373,
-                4.37466414146497,
-                2.93816398269878
-            ];
-
-            const d = [
-                0.00778469570904146,
-                0.32246712907004,
-                2.445134137143,
-                3.75440866190742
-            ];
-
-            const pl = 0.02425;
-            const ph = 1 - pl;
-
-            if (p <= 0) {
-                return -Infinity;
-            }
-
-            if (p >= 1) {
-                return Infinity;
-            }
-
-            let q;
-            let r;
-
-
-            if (p < pl) {
-
-                q = Math.sqrt(
-                    -2 * Math.log(p)
-                );
-
-                return (
-                    (
-                        (
-                            (
-                                (
-                                    c[0] * q
-                                    + c[1]
-                                ) * q
-                                + c[2]
-                            ) * q
-                            + c[3]
-                        ) * q
-                        + c[4]
-                    ) * q
-                    + c[5]
-                )
-                /
-                (
-                    (
-                        (
-                            (
-                                d[0] * q
-                                + d[1]
-                            ) * q
-                            + d[2]
-                        ) * q
-                        + d[3]
-                    ) * q
-                    + 1
-                );
-            }
-
-
-            if (p > ph) {
-
-                q = Math.sqrt(
-                    -2 * Math.log(1 - p)
-                );
-
-                return -(
-                    (
-                        (
-                            (
-                                (
-                                    c[0] * q
-                                    + c[1]
-                                ) * q
-                                + c[2]
-                            ) * q
-                            + c[3]
-                        ) * q
-                        + c[4]
-                    ) * q
-                    + c[5]
-                )
-                /
-                (
-                    (
-                        (
-                            (
-                                d[0] * q
-                                + d[1]
-                            ) * q
-                            + d[2]
-                        ) * q
-                        + d[3]
-                    ) * q
-                    + 1
-                );
-            }
-
-
-            q = p - 0.5;
-            r = q * q;
-
-            return (
-                (
-                    (
-                        (
-                            (
-                                a[0] * r
-                                + a[1]
-                            ) * r
-                            + a[2]
-                        ) * r
-                        + a[3]
-                    ) * r
-                    + a[4]
-                ) * r
-                + a[5]
-            ) * q
-            /
-            (
-                (
-                    (
-                        (
-                            b[0] * r
-                            + b[1]
-                        ) * r
-                        + b[2]
-                    ) * r
-                    + b[3]
-                ) * r
-                + b[4]
-            ) * r
-            + 1
-        );
-        }
-
-
-        /* =============================================================
-           CHI-SQUARE QUANTILE
-           ============================================================= */
-
-        function chiSquareQuantile(p, df) {
-
-            let lo = 0;
-            let hi = Math.max(df, 1);
-
-            while (
-                chiSquareCDF(hi, df) < p
-            ) {
-                hi *= 2;
-            }
-
-            for (let i = 0; i < 100; i++) {
-
-                const mid = (lo + hi) / 2;
-
-                if (
-                    chiSquareCDF(mid, df) < p
-                ) {
-                    lo = mid;
-                } else {
-                    hi = mid;
-                }
-            }
-
-            return (lo + hi) / 2;
-        }
-
-
-        /* =============================================================
-           NONCENTRAL CHI-SQUARE CDF
-           ============================================================= */
-
-        function noncentralChiCDF(x, df, ncp) {
-
-            if (ncp < 1e-10) {
-                return chiSquareCDF(x, df);
-            }
-
-            const mu = ncp / 2;
-            const k0 = Math.floor(mu);
-
-            let weight = Math.exp(
-                -mu
-                + k0 * Math.log(mu)
-                - logGamma(k0 + 1)
-            );
-
-            let sum = 0;
-
-
-            // Recurrence outward from mode,
-            // with sufficient truncation.
-
-            sum +=
-                weight
-                * gammaP(
-                    df / 2 + k0,
-                    x / 2
-                );
-
-
-            let w = weight;
-
-
-            // Forward recurrence
-
-            for (
-                let k = k0 + 1;
-                k < k0 + 2000;
-                k++
-            ) {
-
-                w *= mu / k;
-
-                const term =
-                    w
-                    * gammaP(
-                        df / 2 + k,
-                        x / 2
-                    );
-
-                sum += term;
-
-                if (
-                    k > mu + 30 * Math.sqrt(mu + 1)
-                    && term < 1e-14
-                ) {
-                    break;
-                }
-            }
-
-
-            // Backward recurrence
-
-            w = weight;
-
-            for (
-                let k = k0 - 1;
-                k >= 0;
-                k--
-            ) {
-
-                w *= (k + 1) / mu;
-
-                const term =
-                    w
-                    * gammaP(
-                        df / 2 + k,
-                        x / 2
-                    );
-
-                sum += term;
-
-                if (
-                    k < mu - 30 * Math.sqrt(mu + 1)
-                    && term < 1e-14
-                ) {
-                    break;
-                }
-            }
-
-            return Math.max(
-                0,
-                Math.min(1, sum)
-            );
-        }
-
-
-        /* =============================================================
-           REQUIRED NONCENTRALITY PARAMETER
-           ============================================================= */
-
-        function requiredNcp(
-            alpha,
-            power,
-            df
+        if (
+            k > mu + 30 * Math.sqrt(mu + 1) &&
+            term < 1e-14
         ) {
-
-            // Critical value under the null:
-            // central chi-square, upper-tail alpha.
-
-            const critical =
-                chiSquareQuantile(
-                    1 - alpha,
-                    df
-                );
-
-
-            // Power =
-            // P(noncentral chi-square > critical)
-
-            const targetCDF = 1 - power;
-
-            let lo = 0;
-            let hi = Math.max(10, df);
-
-
-            while (
-                noncentralChiCDF(
-                    critical,
-                    df,
-                    hi
-                ) > targetCDF
-            ) {
-                hi *= 2;
-            }
-
-
-            for (let i = 0; i < 80; i++) {
-
-                const mid = (lo + hi) / 2;
-
-                if (
-                    noncentralChiCDF(
-                        critical,
-                        df,
-                        mid
-                    ) > targetCDF
-                ) {
-                    lo = mid;
-                } else {
-                    hi = mid;
-                }
-            }
-
-            return (lo + hi) / 2;
+            break;
         }
+    }
 
 
-        /* =============================================================
-           MODEL DEGREES OF FREEDOM
-           ============================================================= */
+    /*
+       Backward recurrence
+    */
 
-        function modelDf(p, k) {
+    w = weight;
 
-            const b =
-                p * (p + 1) / 2;
+    for (let k = mode - 1; k >= 0; k--) {
+        w *= (k + 1) / mu;
 
-            const ncor =
-                k * (k - 1) / 2;
+        const term =
+            w * gammaP(
+                df / 2 + k,
+                x / 2
+            );
 
-            const a =
-                (p - k)
-                + p
-                + k
-                + ncor;
+        sum += term;
 
-            return Math.round(b - a);
+        if (
+            k < mu - 30 * Math.sqrt(mu + 1) &&
+            term < 1e-14
+        ) {
+            break;
         }
+    }
+
+    return Math.max(0, Math.min(1, sum));
+}
 
 
-        /* =============================================================
-           SAMPLE SIZE CALCULATION
-           ============================================================= */
+/* ============================================================
+   REQUIRED NONCENTRALITY PARAMETER
+   ============================================================ */
 
-        function calculate() {
+function requiredNcp(alpha, power, df) {
 
-            const rmsea =
-                Number(
-                    document.getElementById("rmsea").value
-                );
+    const critical =
+        chiSquareQuantile(1 - alpha, df);
 
-            const alpha =
-                Number(
-                    document.getElementById("alpha").value
-                );
+    const targetCDF = 1 - power;
 
-            const power =
-                Number(
-                    document.getElementById("power").value
-                ) / 100;
+    let low = 0;
+    let high = Math.max(10, df);
 
-            const df =
-                Math.round(
-                    Number(
-                        document.getElementById("df").value
-                    )
-                );
+    /*
+       Increase upper bound until the desired
+       power is reached.
+    */
 
-            const drop =
-                Number(
-                    document.getElementById("dropout").value
-                ) / 100;
+    while (
+        noncentralChiCDF(
+            critical,
+            df,
+            high
+        ) > targetCDF
+    ) {
+        high *= 2;
 
-
-            const warning =
-                document.getElementById("warning");
-
-            warning.style.display = "none";
-
-
-            /* Validate inputs */
-
-            if (
-                !(rmsea > 0)
-                || !(alpha > 0 && alpha < 1)
-                || !(power > 0 && power < 1)
-                || !(df > 0)
-                || !(drop >= 0 && drop < 1)
-            ) {
-
-                warning.textContent =
-                    "Please enter valid values. RMSEA and df must be positive; α and power must be between 0 and 1; dropout must be below 100%.";
-
-                warning.style.display = "block";
-
-                return;
-            }
-
-
-            try {
-
-                /* Required noncentrality */
-
-                const ncp =
-                    requiredNcp(
-                        alpha,
-                        power,
-                        df
-                    );
-
-
-                /* Base sample size */
-
-                const n =
-                    ncp
-                    /
-                    (
-                        rmsea
-                        * rmsea
-                        * df
-                    )
-                    + 1;
-
-
-                /* Adjusted sample size */
-
-                const nd =
-                    n / (1 - drop);
-
-
-                /* Display results */
-
-                document.getElementById("rDf").textContent =
-                    df;
-
-                document.getElementById("rNcp").textContent =
-                    ncp.toFixed(3);
-
-                document.getElementById("rN").textContent =
-                    Math.ceil(n);
-
-                document.getElementById("rDrop").textContent =
-                    Math.ceil(nd);
-
-            } catch (e) {
-
-                warning.textContent =
-                    "The numerical calculation could not converge for these inputs. Try conventional values such as RMSEA 0.05, α 0.05, and power 80%.";
-
-                warning.style.display = "block";
-            }
+        if (high > 1e8) {
+            throw new Error("NCP search failed.");
         }
+    }
 
 
-        /* =============================================================
-           SEM DF CALCULATION
-           ============================================================= */
+    /*
+       Binary search
+    */
 
-        function calculateDf() {
+    for (let i = 0; i < 100; i++) {
+        const mid = (low + high) / 2;
 
-            const p =
-                Math.round(
-                    Number(
-                        document.getElementById("items").value
-                    )
-                );
+        const cdf =
+            noncentralChiCDF(
+                critical,
+                df,
+                mid
+            );
+
+        if (cdf > targetCDF) {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+
+    return (low + high) / 2;
+}
 
 
-            const vals = [
-                "loadings",
-                "errors",
-                "exoVars",
-                "exoCov",
-                "paths",
-                "disturbances"
-            ].map(
-                id =>
-                    Math.round(
-                        Number(
-                            document.getElementById(id).value
-                        )
-                    )
+/* ============================================================
+   RMSEA SAMPLE SIZE CALCULATION
+   ============================================================ */
+
+function calculate() {
+
+    /*
+       IMPORTANT:
+       Read the input fields EVERY TIME this function runs.
+       Nothing is stored from a previous calculation.
+    */
+
+    const rmsea = parseFloat(
+        document.getElementById("rmsea").value
+    );
+
+    const alpha = parseFloat(
+        document.getElementById("alpha").value
+    );
+
+    const powerPercent = parseFloat(
+        document.getElementById("power").value
+    );
+
+    const df = Math.round(
+        parseFloat(
+            document.getElementById("df").value
+        )
+    );
+
+    const dropoutPercent = parseFloat(
+        document.getElementById("dropout").value
+    );
+
+
+    const warning =
+        document.getElementById("warning");
+
+    warning.textContent = "";
+    warning.style.display = "none";
+
+
+    /*
+       Convert percentages to proportions
+    */
+
+    const power = powerPercent / 100;
+    const dropout = dropoutPercent / 100;
+
+
+    /*
+       Validate
+    */
+
+    if (
+        !Number.isFinite(rmsea) ||
+        !Number.isFinite(alpha) ||
+        !Number.isFinite(powerPercent) ||
+        !Number.isFinite(df) ||
+        !Number.isFinite(dropoutPercent)
+    ) {
+        warning.textContent =
+            "Please enter values in all required fields.";
+
+        warning.style.display = "block";
+        return;
+    }
+
+
+    if (rmsea <= 0) {
+        warning.textContent =
+            "RMSEA must be greater than 0.";
+
+        warning.style.display = "block";
+        return;
+    }
+
+
+    if (alpha <= 0 || alpha >= 1) {
+        warning.textContent =
+            "Significance level α must be between 0 and 1.";
+
+        warning.style.display = "block";
+        return;
+    }
+
+
+    if (power <= 0 || power >= 1) {
+        warning.textContent =
+            "Power must be between 1% and 99.9%.";
+
+        warning.style.display = "block";
+        return;
+    }
+
+
+    if (df <= 0) {
+        warning.textContent =
+            "Degrees of freedom must be greater than 0.";
+
+        warning.style.display = "block";
+        return;
+    }
+
+
+    if (dropout < 0 || dropout >= 1) {
+        warning.textContent =
+            "Non-response rate must be between 0% and 99%.";
+
+        warning.style.display = "block";
+        return;
+    }
+
+
+    try {
+
+        /*
+           Calculate required noncentrality
+        */
+
+        const ncp =
+            requiredNcp(
+                alpha,
+                power,
+                df
             );
 
 
-            const warning =
-                document.getElementById("warning");
+        /*
+           Calculate base sample size
+
+           N = λ / (RMSEA² × df) + 1
+        */
+
+        const n =
+            ncp /
+            (
+                rmsea *
+                rmsea *
+                df
+            ) + 1;
 
 
-            /* Validate inputs */
+        /*
+           Adjust for non-response
+        */
 
-            if (
-                !(p >= 2)
-                || vals.some(
-                    v => !(v >= 0)
-                )
-            ) {
-
-                warning.textContent =
-                    "Please enter valid non-negative parameter counts and at least 2 observed indicators.";
-
-                warning.style.display = "block";
-
-                return;
-            }
+        const adjustedN =
+            n / (1 - dropout);
 
 
-            /* Number of unique covariance elements */
+        /*
+           UPDATE RESULTS USING CURRENT VALUES
+        */
 
-            const unique =
-                p * (p + 1) / 2;
+        document.getElementById("rDf").textContent =
+            df.toString();
 
+        document.getElementById("rNcp").textContent =
+            ncp.toFixed(3);
 
-            /* Total number of free parameters */
+        document.getElementById("rN").textContent =
+            Math.ceil(n).toString();
 
-            const free =
-                vals.reduce(
-                    (a, b) => a + b,
-                    0
-                );
+        document.getElementById("rDrop").textContent =
+            Math.ceil(adjustedN).toString();
 
+    } catch (error) {
 
-            /* Degrees of freedom */
+        console.error(error);
 
-            const df =
-                Math.round(
-                    unique - free
-                );
+        warning.textContent =
+            "The calculation could not converge. Please check your input values.";
 
-
-            /* Display results */
-
-            document.getElementById("uniqueResult").textContent =
-                unique;
-
-            document.getElementById("freeResult").textContent =
-                free;
-
-            document.getElementById("dfResult").textContent =
-                df;
+        warning.style.display = "block";
+    }
+}
 
 
-            /* Update RMSEA calculator df */
+/* ============================================================
+   SEM DEGREES OF FREEDOM CALCULATION
+   ============================================================ */
 
-            document.getElementById("df").value =
-                df;
+function calculateDf() {
 
+    /*
+       Read ALL SEM inputs again every time
+       the button is clicked.
+    */
 
-            /* Check for identification */
-
-            if (df <= 0) {
-
-                warning.textContent =
-                    "This specification produces non-positive degrees of freedom.";
-
-                warning.style.display = "block";
-
-            } else {
-
-                warning.style.display = "none";
-            }
-        }
+    const p = Math.round(
+        parseFloat(
+            document.getElementById("items").value
+        )
+    );
 
 
-        /* =============================================================
-           EVENT LISTENERS
-           ============================================================= */
-
-        document
-            .getElementById("calculate")
-            .addEventListener(
-                "click",
-                calculate
-            );
+    const parameterIds = [
+        "loadings",
+        "errors",
+        "exoVars",
+        "exoCov",
+        "paths",
+        "disturbances"
+    ];
 
 
-        document
-            .getElementById("calcDf")
-            .addEventListener(
-                "click",
-                calculateDf
-            );
+    const values = parameterIds.map(id =>
+        Math.round(
+            parseFloat(
+                document.getElementById(id).value
+            )
+        )
+    );
 
 
-        /* =============================================================
-           RESET
-           ============================================================= */
+    const warning =
+        document.getElementById("warning");
 
-        document
-            .getElementById("reset")
-            .addEventListener(
-                "click",
-                () => {
-
-                    setTimeout(
-                        () => {
-
-                            document.getElementById(
-                                "dfResult"
-                            ).textContent = "241";
+    warning.textContent = "";
+    warning.style.display = "none";
 
 
-                            document.getElementById(
-                                "rDf"
-                            ).textContent = "241";
+    /*
+       Validate
+    */
+
+    if (
+        !Number.isFinite(p) ||
+        p < 2 ||
+        values.some(v => !Number.isFinite(v) || v < 0)
+    ) {
+        warning.textContent =
+            "Please enter valid non-negative parameter counts and at least 2 observed indicators.";
+
+        warning.style.display = "block";
+        return;
+    }
 
 
-                            document.getElementById(
-                                "rNcp"
-                            ).textContent = "—";
+    /*
+       Unique covariance elements
+
+       p(p + 1) / 2
+    */
+
+    const unique =
+        p * (p + 1) / 2;
 
 
-                            document.getElementById(
-                                "rN"
-                            ).textContent = "—";
+    /*
+       Total free parameters
+    */
+
+    const free =
+        values.reduce(
+            (total, value) => total + value,
+            0
+        );
 
 
-                            document.getElementById(
-                                "rDrop"
-                            ).textContent = "—";
+    /*
+       Degrees of freedom
+    */
+
+    const df =
+        Math.round(
+            unique - free
+        );
 
 
-                            document.getElementById(
-                                "warning"
-                            ).style.display = "none";
+    /*
+       Update SEM results
+    */
 
-                        },
-                        0
-                    );
-                }
-            );
+    document.getElementById(
+        "uniqueResult"
+    ).textContent = unique.toString();
+
+    document.getElementById(
+        "freeResult"
+    ).textContent = free.toString();
+
+    document.getElementById(
+        "dfResult"
+    ).textContent = df.toString();
 
 
-        /* =============================================================
-           INITIAL CALCULATION
-           ============================================================= */
+    /*
+       IMPORTANT:
+       Send the NEW df to the RMSEA calculator.
+    */
+
+    document.getElementById("df").value =
+        df.toString();
+
+
+    /*
+       If the new df is valid,
+       immediately recalculate sample size.
+    */
+
+    if (df > 0) {
+        calculate();
+    } else {
+        warning.textContent =
+            "This specification produces non-positive degrees of freedom.";
+
+        warning.style.display = "block";
+    }
+}
+
+
+/* ============================================================
+   EVENT LISTENERS
+   ============================================================ */
+
+document
+    .getElementById("calculate")
+    .addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+        /*
+           Force a completely fresh calculation.
+        */
+
+        calculate();
+    });
+
+
+document
+    .getElementById("calcDf")
+    .addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+        /*
+           Calculate new SEM df,
+           then calculate new sample size.
+        */
+
+        calculateDf();
+    });
+
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+document
+    .getElementById("reset")
+    .addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+
+        /*
+           Restore original input values
+        */
+
+        document.getElementById("rmsea").value = "0.05";
+        document.getElementById("alpha").value = "0.05";
+        document.getElementById("power").value = "80";
+        document.getElementById("df").value = "13";
+        document.getElementById("dropout").value = "10";
+
+
+        document.getElementById("items").value = "24";
+        document.getElementById("loadings").value = "18";
+        document.getElementById("errors").value = "24";
+        document.getElementById("exoVars").value = "4";
+        document.getElementById("exoCov").value = "6";
+        document.getElementById("paths").value = "5";
+        document.getElementById("disturbances").value = "2";
+
+
+        /*
+           Restore SEM results
+        */
+
+        document.getElementById(
+            "uniqueResult"
+        ).textContent = "300";
+
+        document.getElementById(
+            "freeResult"
+        ).textContent = "59";
+
+        document.getElementById(
+            "dfResult"
+        ).textContent = "241";
+
+
+        /*
+           Recalculate RMSEA results
+           using the actual RMSEA df = 13.
+        */
 
         calculate();
 
-    </script>
+
+        document.getElementById(
+            "warning"
+        ).style.display = "none";
+    });
+
+
+/* ============================================================
+   INITIAL CALCULATION
+   ============================================================ */
+
+document.addEventListener("DOMContentLoaded", function() {
+    calculate();
+});
+</script>
 
 </body>
 

@@ -90,12 +90,12 @@ a{color:var(--primary);font-weight:650}
       </div>
 
       <div class="form-row">
-        <label for="dropout">Expected dropout rate</label>
+        <label for="dropout">Expected Non-response rate</label>
         <div class="unit"><input id="dropout" type="number" value="10" min="0" max="95" step="5"><span>%</span></div>
       </div>
 
       <div class="buttons">
-        <button class="primary" id="calculate">Calculate sample size</button>
+        <button class="primary" id="calculate">Calculate Sample Size</button>
         <button class="secondary" id="reset">Reset</button>
       </div>
       <div class="warning" id="warning"></div>
@@ -106,7 +106,7 @@ a{color:var(--primary);font-weight:650}
       <p class="sub">Required sample size based on the entered RMSEA, α, power, and df.</p>
       <div class="results">
         <div class="result"><div class="k">Model df</div><div class="v" id="rDf">13</div></div>
-        <div class="result"><div class="k">Required noncentrality</div><div class="v" id="rNcp">—</div></div>
+        <div class="result"><div class="k">Required Non-centrality</div><div class="v" id="rNcp">—</div></div>
         <div class="result highlight"><div class="k">Sample size, n</div><div class="v" id="rN">—</div></div>
         <div class="result highlight"><div class="k">Sample size with dropout</div><div class="v" id="rDrop">—</div></div>
       </div>
@@ -115,20 +115,20 @@ a{color:var(--primary);font-weight:650}
 
     <section class="card full">
       <h2>2. Calculate SEM degrees of freedom</h2>
-      <p class="sub">For a full SEM, degrees of freedom are calculated from the number of unique observed covariance elements minus the number of free parameters. This is more appropriate for the structural model shown above than the simplified CFA formula.</p>
+      <p class="sub">For a full SEM, degrees of freedom are calculated from the number of unique observed covariance elements minus the number of free parameters.</p>
 
       <div class="grid" style="grid-template-columns:1fr 1fr;box-shadow:none">
         <div>
           <div class="form-row">
             <label for="items">Number of observed indicators (p)
-              <span class="help">Your model has 24 indicators: 4 CONV + 4 WAIT + 4 INFO + 4 SAF + 4 TEXP + 4 OTS.</span>
+              <span class="help">Number of Latent Variables times Number of Statements/Questions per Latent Variable</span>
             </label>
             <input id="items" type="number" value="24" min="2" step="1">
           </div>
 
           <div class="form-row">
             <label for="loadings">Free factor loadings
-              <span class="help">24 indicators − 6 fixed marker loadings = 18 free loadings.</span>
+              <span class="help">(Latent Variables)(Indicators per Latent Variable - 1)</span>
             </label>
             <input id="loadings" type="number" value="18" min="0" step="1">
           </div>
@@ -145,21 +145,20 @@ a{color:var(--primary);font-weight:650}
 
           <div class="form-row">
             <label for="exoCov">Covariances among exogenous latent variables
-              <span class="help">4 exogenous factors → 4(3)/2 = 6 covariances.</span>
+              <span class="help">x exogenous factors → x(x-1)/2 covariances.</span>
             </label>
             <input id="exoCov" type="number" value="6" min="0" step="1">
           </div>
 
           <div class="form-row">
             <label for="paths">Structural paths
-              <span class="help">CONV→TEXP, WAIT→TEXP, INFO→TEXP, SAF→TEXP, TEXP→OTS = 5.</span>
+              <span class="help">Number of Beta Arrows</span>
             </label>
             <input id="paths" type="number" value="5" min="0" step="1">
           </div>
 
           <div class="form-row">
             <label for="disturbances">Disturbance variances
-              <span class="help">TEXP and OTS = 2.</span>
             </label>
             <input id="disturbances" type="number" value="2" min="0" step="1">
           </div>
@@ -170,19 +169,6 @@ a{color:var(--primary);font-weight:650}
         </div>
 
         <div>
-          <div class="formula">
-Unique observed covariance elements:
-U = p(p + 1) / 2
-
-For p = 24:
-U = 24(25) / 2 = 300
-
-Free parameters:
-18 + 24 + 4 + 6 + 5 + 2 = 59
-
-Therefore:
-df_model = 300 − 59 = 241
-          </div>
 
           <div class="result"><div class="k">Unique covariance elements</div><div class="v" id="uniqueResult">300</div></div>
           <div class="result"><div class="k">Total free parameters</div><div class="v" id="freeResult">59</div></div>
@@ -190,41 +176,13 @@ df_model = 300 − 59 = 241
         </div>
       </div>
 
-      <div class="note">
-        <strong>Why this differs from 237:</strong> the earlier simplified formula treated all 6 latent factors as if their variances and all 15 pairwise factor covariances were free. In this structural model, only the 4 exogenous latent variables have freely estimated variances/covariances. TEXP and OTS are endogenous, so their residual/disturbance variances are estimated instead. Consequently, the correct free-parameter count is 59 and the model df is <strong>241</strong>.
-      </div>
     </section>
 
-    <section class="card full">
-      <h2>3. lavaan model reference</h2>
-      <p class="sub">You can use this as a reference for the model syntax used in the example.</p>
-      <textarea readonly>F1 =~ Q1 + Q2 + Q3 + Q4
-F2 =~ Q5 + Q6 + Q7
-F2 ~ F1</textarea>
-      <p style="margin:14px 0 0;font-size:14px;color:#64748b">
-        In <a href="https://lavaan.ugent.be/tutorial/sem.html" target="_blank" rel="noopener">lavaan</a>, <code>=~</code> defines latent variables and <code>~</code> defines regressions. This calculator's df module follows the explicit formula supplied in the prompt rather than attempting to parse every possible lavaan model automatically.
-      </p>
-    </section>
-
-    <section class="card full">
-      <h2>Calculation details</h2>
-      <table>
-        <thead><tr><th>Quantity</th><th>Definition</th></tr></thead>
-        <tbody>
-          <tr><td>Unique observed covariance elements</td><td>p(p + 1) / 2</td></tr>
-          <tr><td>Free factor loadings</td><td>24 indicators − 6 marker loadings = 18</td></tr>
-          <tr><td>Total free parameters</td><td>18 + 24 + 4 + 6 + 5 + 2 = 59</td></tr>
-          <tr><td>Model degrees of freedom</td><td>df = 300 − 59 = 241</td></tr>
-          <tr><td>RMSEA sample size</td><td>N = λ / (RMSEA² × df) + 1</td></tr>
-          <tr><td>Dropout-adjusted sample</td><td>N<sub>drop</sub> = N / (1 − dropout rate)</td></tr>
-        </tbody>
-      </table>
-    </section>
   </div>
 </main>
 
 <footer>
-  <div class="container">SEM RMSEA Sample Size Calculator • Static GitHub Pages-ready website</div>
+  <div class="container">SEM RMSEA Sample Size Calculator • LJ Ollero(2026)</div>
 </footer>
 
 <script>

@@ -1,359 +1,525 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Structural Equation Modeling sample size calculator using RMSEA and model degrees of freedom.">
-<title>SEM Sample Size Calculator | RMSEA</title>
-<style>
-:root{
-  --bg:#f5f7fb; --card:#fff; --ink:#172033; --muted:#657089;
-  --line:#dfe5ef; --primary:#2563eb; --primary-dark:#1d4ed8;
-  --soft:#eff6ff; --success:#15803d; --shadow:0 12px 35px rgba(15,23,42,.08);
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
-.container{width:min(1050px,calc(100% - 32px));margin:auto}
-header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:white;padding:46px 0 42px}
-.badge{display:inline-flex;padding:6px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.08)}
-h1{font-size:clamp(30px,5vw,48px);line-height:1.08;margin:16px 0 10px;letter-spacing:-.03em}
-header p{max-width:720px;margin:0;color:#dbeafe;font-size:17px}
-main{padding:28px 0 60px}
-.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:25px}
-.card h2{font-size:20px;margin:0 0 5px}
-.card .sub{color:var(--muted);font-size:14px;margin:0 0 22px}
-.form-row{display:grid;grid-template-columns:1fr 190px;gap:18px;align-items:center;padding:13px 0;border-bottom:1px solid #eef1f6}
-.form-row:last-of-type{border-bottom:0}
-label{font-weight:650}
-.help{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:3px}
-input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:10px;background:white;color:var(--ink);font:inherit;padding:10px 12px;outline:none;transition:.15s}
-input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-textarea{min-height:150px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
-.unit{position:relative}.unit input{padding-right:42px}.unit span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
-.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-button{border:0;border-radius:10px;padding:11px 17px;font-weight:750;cursor:pointer;font:inherit}
-.primary{background:var(--primary);color:white}.primary:hover{background:var(--primary-dark)}
-.secondary{background:#e8eef7;color:#26354d}
-.results{display:grid;gap:12px;margin-top:4px}
-.result{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fafcff}
-.result .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.result .v{font-size:30px;font-weight:800;margin-top:2px}
-.result.highlight{background:var(--soft);border-color:#bfdbfe}
-.result.highlight .v{color:var(--primary-dark)}
-.note{margin-top:18px;padding:13px 15px;background:#f8fafc;border-left:4px solid #94a3b8;border-radius:8px;font-size:13px;color:#475569}
-.warning{display:none;margin-top:14px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:9px;font-size:13px}
-.formula{background:#0b1220;color:#e2e8f0;border-radius:12px;padding:16px;overflow:auto;font-family:ui-monospace,monospace;font-size:13px;margin:16px 0}
-.full{grid-column:1/-1}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
-th{color:var(--muted);font-size:12px;text-transform:uppercase}
-footer{padding:30px 0;color:var(--muted);font-size:13px;text-align:center}
-a{color:var(--primary);font-weight:650}
-@media(max-width:780px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.form-row{grid-template-columns:1fr}.container{width:min(100% - 22px,1050px)}header{padding:34px 0}.card{padding:19px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Structural Equation Modeling sample size calculator using RMSEA and model degrees of freedom."
+  >
+  <title>SEM Sample Size Calculator | RMSEA</title>
+  <!-- External CSS -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-<header>
-  <div class="container">
-    <span class="badge">SEM • Power Analysis</span>
-    <h1>Sample Size Calculator</h1>
-    <p>Structural Equation Modeling — Root Mean Squared Error of Approximation (RMSEA)</p>
-  </div>
-</header>
 
-<main class="container">
-  <div class="grid">
-    <section class="card">
-      <h2>1. RMSEA power analysis</h2>
-      <p class="sub">Enter the expected RMSEA, significance level, statistical power, and model degrees of freedom.</p>
+  <!-- =========================
+       HEADER
+  ========================== -->
+  <header>
+    <div class="container">
+      <span class="badge">SEM • Power Analysis</span>
+      <h1>Sample Size Calculator</h1>
+      <p>
+        Structural Equation Modeling —
+        Root Mean Squared Error of Approximation (RMSEA)
+      </p>
+    </div>
+  </header>
 
-      <div class="form-row">
-        <label for="rmsea">Expected RMSEA <span class="help">Typical value for close fit: 0.05</span></label>
-        <input id="rmsea" type="number" value="0.05" min="0.001" max="1" step="0.01">
-      </div>
 
-      <div class="form-row">
-        <label for="alpha">Significance level (α) <span class="help">Two-tailed / conventional significance level</span></label>
-        <input id="alpha" type="number" value="0.05" min="0.0001" max="0.9999" step="0.01">
-      </div>
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+  <main class="container">
+    <div class="grid">
+      <!-- =========================
+           RMSEA POWER ANALYSIS
+      ========================== -->
+      <section class="card">
+        <h2>1. RMSEA power analysis</h2>
+        <p class="sub">
+          Enter the expected RMSEA, significance level,
+          statistical power, and model degrees of freedom.
+        </p>
 
-      <div class="form-row">
-        <label for="power">Power (1 − β)</label>
-        <div class="unit"><input id="power" type="number" value="80" min="1" max="99.9" step="5"><span>%</span></div>
-      </div>
 
-      <div class="form-row">
-        <label for="df">Degrees of freedom (df) <span class="help">Calculated below from the SEM measurement model.</span></label>
-        <input id="df" type="number" value="13" min="1" step="1">
-      </div>
+        <!-- RMSEA -->
+        <div class="form-row">
+          <label for="rmsea">
+            Expected RMSEA
+            <span class="help">
+              Typical value for close fit: 0.05
+            </span>
+          </label>
 
-      <div class="form-row">
-        <label for="dropout">Expected Non-response rate</label>
-        <div class="unit"><input id="dropout" type="number" value="10" min="0" max="95" step="5"><span>%</span></div>
-      </div>
+          <input
+            id="rmsea"
+            type="number"
+            value="0.05"
+            min="0.001"
+            max="1"
+            step="0.01"
+          >
+        </div>
 
-      <div class="buttons">
-        <button class="primary" id="calculate">Calculate Sample Size</button>
-        <button class="secondary" id="reset">Reset</button>
-      </div>
-      <div class="warning" id="warning"></div>
-    </section>
 
-    <section class="card">
-      <h2>Results</h2>
-      <p class="sub">Required sample size based on the entered RMSEA, α, power, and df.</p>
-      <div class="results">
-        <div class="result"><div class="k">Model df</div><div class="v" id="rDf">13</div></div>
-        <div class="result"><div class="k">Required Non-centrality</div><div class="v" id="rNcp">—</div></div>
-        <div class="result highlight"><div class="k">Sample size, n</div><div class="v" id="rN">—</div></div>
-        <div class="result highlight"><div class="k">Sample size with dropout</div><div class="v" id="rDrop">—</div></div>
-      </div>
-      <div class="note">The calculation solves for the noncentrality parameter required to attain the requested power, then applies <strong>N = λ / (RMSEA² × df) + 1</strong>. The displayed sample size is rounded up to the next whole participant.</div>
-    </section>
+        <!-- Alpha -->
+        <div class="form-row">
+          <label for="alpha">
+            Significance level (α)
+            <span class="help">
+              Two-tailed / conventional significance level
+            </span>
+          </label>
 
-    <section class="card full">
-      <h2>2. Calculate SEM degrees of freedom</h2>
-      <p class="sub">For a full SEM, degrees of freedom are calculated from the number of unique observed covariance elements minus the number of free parameters.</p>
+          <input
+            id="alpha"
+            type="number"
+            value="0.05"
+            min="0.0001"
+            max="0.9999"
+            step="0.01"
+          >
+        </div>
 
-      <div class="grid" style="grid-template-columns:1fr 1fr;box-shadow:none">
-        <div>
-          <div class="form-row">
-            <label for="items">Number of observed indicators (p)
-              <span class="help">Number of Latent Variables times Number of Statements/Questions per Latent Variable</span>
-            </label>
-            <input id="items" type="number" value="24" min="2" step="1">
-          </div>
 
-          <div class="form-row">
-            <label for="loadings">Free factor loadings
-              <span class="help">(Latent Variables)(Indicators per Latent Variable - 1)</span>
-            </label>
-            <input id="loadings" type="number" value="18" min="0" step="1">
-          </div>
-
-          <div class="form-row">
-            <label for="errors">Indicator error variances</label>
-            <input id="errors" type="number" value="24" min="0" step="1">
-          </div>
-
-          <div class="form-row">
-            <label for="exoVars">Variances of exogenous latent variables</label>
-            <input id="exoVars" type="number" value="4" min="0" step="1">
-          </div>
-
-          <div class="form-row">
-            <label for="exoCov">Covariances among exogenous latent variables
-              <span class="help">x exogenous factors → x(x-1)/2 covariances.</span>
-            </label>
-            <input id="exoCov" type="number" value="6" min="0" step="1">
-          </div>
-
-          <div class="form-row">
-            <label for="paths">Structural paths
-              <span class="help">Number of Beta Arrows</span>
-            </label>
-            <input id="paths" type="number" value="5" min="0" step="1">
-          </div>
-
-          <div class="form-row">
-            <label for="disturbances">Disturbance variances
-            </label>
-            <input id="disturbances" type="number" value="2" min="0" step="1">
-          </div>
-
-          <div class="buttons">
-            <button class="primary" id="calcDf">Calculate model df</button>
+        <!-- Power -->
+        <div class="form-row">
+          <label for="power">
+            Power (1 − β)
+          </label>
+          <div class="unit">
+            <input
+              id="power"
+              type="number"
+              value="80"
+              min="1"
+              max="99.9"
+              step="5"
+            >
+            <span>%</span>
           </div>
         </div>
 
-        <div>
 
-          <div class="result"><div class="k">Unique covariance elements</div><div class="v" id="uniqueResult">300</div></div>
-          <div class="result"><div class="k">Total free parameters</div><div class="v" id="freeResult">59</div></div>
-          <div class="result highlight"><div class="k">Calculated model df</div><div class="v" id="dfResult">241</div></div>
+        <!-- Degrees of Freedom -->
+        <div class="form-row">
+          <label for="df">
+            Degrees of freedom (df)
+            <span class="help">
+              Calculated below from the SEM measurement model.
+            </span>
+          </label>
+
+          <input
+            id="df"
+            type="number"
+            value="13"
+            min="1"
+            step="1"
+          >
         </div>
-      </div>
 
-    </section>
+        <!-- Non-response -->
+        <div class="form-row">
+          <label for="dropout">
+            Expected Non-response rate
+          </label>
 
-  </div>
-</main>
+          <div class="unit">
+            <input
+              id="dropout"
+              type="number"
+              value="10"
+              min="0"
+              max="95"
+              step="5"
+            >
+            <span>%</span>
+          </div>
+        </div>
 
-<footer>
-  <div class="container">SEM RMSEA Sample Size Calculator • LJ Ollero(2026)</div>
-</footer>
 
-<script>
-/*
-  Numerical routines:
-  - Regularized lower incomplete gamma P(a,x)
-  - Central chi-square quantile
-  - Noncentral chi-square CDF via Poisson mixture
-  - Root solve for noncentrality λ giving requested power
+        <!-- Buttons -->
+        <div class="buttons">
 
-  This keeps the calculator self-contained: no JavaScript library is required.
-*/
-function logGamma(z){
-  const c=[676.5203681218851,-1259.1392167224028,771.32342877765313,
-    -176.61502916214059,12.507343278686905,-0.13857109526572012,
-    9.9843695780195716e-6,1.5056327351493116e-7];
-  if(z<0.5) return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-logGamma(1-z);
-  z-=1; let x=0.99999999999980993;
-  for(let i=0;i<c.length;i++) x+=c[i]/(z+i+1);
-  const t=z+c.length-0.5;
-  return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
-}
-function gammaP(a,x){
-  if(x<=0) return 0;
-  if(x<a+1){
-    let ap=a, sum=1/a, del=sum;
-    for(let n=1;n<=10000;n++){
-      ap+=1; del*=x/ap; sum+=del;
-      if(Math.abs(del)<Math.abs(sum)*3e-14) break;
-    }
-    return sum*Math.exp(-x+a*Math.log(x)-logGamma(a));
-  }
-  let b=x+1-a, c=1/1e-300, d=1/b, h=d;
-  for(let i=1;i<=10000;i++){
-    const an=-i*(i-a), bb=b+2*i;
-    d=an*d+bb; if(Math.abs(d)<1e-300)d=1e-300;
-    c=bb+an/c; if(Math.abs(c)<1e-300)c=1e-300;
-    d=1/d; const del=d*c; h*=del;
-    if(Math.abs(del-1)<3e-14) break;
-  }
-  return 1-Math.exp(-x+a*Math.log(x)-logGamma(a))*h;
-}
-function chiSquareCDF(x,df){ return gammaP(df/2,x/2); }
+          <button
+            class="primary"
+            id="calculate"
+          >
+            Calculate Sample Size
+          </button>
+          <button
+            class="secondary"
+            id="reset"
+          >
+            Reset
+          </button>
 
-function normalInv(p){
-  // Acklam approximation
-  const a=[-39.6968302866538,220.946098424521,-275.928510446969,138.357751867269,-30.6647980661472,2.50662827745924];
-  const b=[-54.4760987982241,161.585836858041,-155.698979859887,66.8013118877197,-13.2806815528857];
-  const c=[-0.00778489400243029,-0.322396458041136,-2.40075827716184,-2.54973253934373,4.37466414146497,2.93816398269878];
-  const d=[0.00778469570904146,0.32246712907004,2.445134137143,3.75440866190742];
-  const pl=0.02425, ph=1-pl;
-  if(p<=0) return -Infinity; if(p>=1) return Infinity;
-  let q,r;
-  if(p<pl){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
-  if(p>ph){q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
-  q=p-.5;r=q*q;return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
-}
-function chiSquareQuantile(p,df){
-  let lo=0, hi=Math.max(df,1);
-  while(chiSquareCDF(hi,df)<p) hi*=2;
-  for(let i=0;i<100;i++){
-    const mid=(lo+hi)/2;
-    if(chiSquareCDF(mid,df)<p) lo=mid; else hi=mid;
-  }
-  return (lo+hi)/2;
-}
-function noncentralChiCDF(x,df,ncp){
-  if(ncp<1e-10) return chiSquareCDF(x,df);
-  const mu=ncp/2, k0=Math.floor(mu);
-  let weight=Math.exp(-mu+k0*Math.log(mu)-logGamma(k0+1));
-  let sum=0;
-  // Recurrence outward from mode, with sufficient truncation.
-  sum += weight*gammaP(df/2+k0,x/2);
-  let w=weight;
-  for(let k=k0+1;k<k0+2000;k++){
-    w*=mu/k;
-    const term=w*gammaP(df/2+k,x/2); sum+=term;
-    if(k>mu+30*Math.sqrt(mu+1) && term<1e-14) break;
-  }
-  w=weight;
-  for(let k=k0-1;k>=0;k--){
-    w*= (k+1)/mu;
-    const term=w*gammaP(df/2+k,x/2); sum+=term;
-    if(k<mu-30*Math.sqrt(mu+1) && term<1e-14) break;
-  }
-  return Math.max(0,Math.min(1,sum));
-}
-function requiredNcp(alpha,power,df){
-  // Critical value under the null: central chi-square, upper-tail alpha.
-  const critical=chiSquareQuantile(1-alpha,df);
-  // Power = P(noncentral chi-square > critical).
-  const targetCDF=1-power;
-  let lo=0, hi=Math.max(10,df);
-  while(noncentralChiCDF(critical,df,hi)>targetCDF) hi*=2;
-  for(let i=0;i<80;i++){
-    const mid=(lo+hi)/2;
-    if(noncentralChiCDF(critical,df,mid)>targetCDF) lo=mid; else hi=mid;
-  }
-  return (lo+hi)/2;
-}
-function modelDf(p,k){
-  const b=p*(p+1)/2;
-  const ncor=k*(k-1)/2;
-  const a=(p-k)+p+k+ncor;
-  return Math.round(b-a);
-}
-function calculate(){
-  const rmsea=Number(document.getElementById('rmsea').value);
-  const alpha=Number(document.getElementById('alpha').value);
-  const power=Number(document.getElementById('power').value)/100;
-  const df=Math.round(Number(document.getElementById('df').value));
-  const drop=Number(document.getElementById('dropout').value)/100;
-  const warning=document.getElementById('warning');
-  warning.style.display='none';
-  if(!(rmsea>0) || !(alpha>0&&alpha<1) || !(power>0&&power<1) || !(df>0) || !(drop>=0&&drop<1)){
-    warning.textContent='Please enter valid values. RMSEA and df must be positive; α and power must be between 0 and 1; dropout must be below 100%.';
-    warning.style.display='block'; return;
-  }
-  try{
-    const ncp=requiredNcp(alpha,power,df);
-    const n=ncp/(rmsea*rmsea*df)+1;
-    const nd=n/(1-drop);
-    document.getElementById('rDf').textContent=df;
-    document.getElementById('rNcp').textContent=ncp.toFixed(3);
-    document.getElementById('rN').textContent=Math.ceil(n);
-    document.getElementById('rDrop').textContent=Math.ceil(nd);
-  }catch(e){
-    warning.textContent='The numerical calculation could not converge for these inputs. Try conventional values such as RMSEA 0.05, α 0.05, and power 80%.';
-    warning.style.display='block';
-  }
-}
-function calculateDf(){
-  const p=Math.round(Number(document.getElementById('items').value));
-  const vals=['loadings','errors','exoVars','exoCov','paths','disturbances']
-    .map(id=>Math.round(Number(document.getElementById(id).value)));
-  const warning=document.getElementById('warning');
+        </div>
 
-  if(!(p>=2) || vals.some(v=>!(v>=0))){
-    warning.textContent='Please enter valid non-negative parameter counts and at least 2 observed indicators.';
-    warning.style.display='block'; return;
-  }
+        <!-- Warning -->
+        <div
+          class="warning"
+          id="warning"
+        ></div>
 
-  const unique=p*(p+1)/2;
-  const free=vals.reduce((a,b)=>a+b,0);
-  const df=Math.round(unique-free);
+      </section>
 
-  document.getElementById('uniqueResult').textContent=unique;
-  document.getElementById('freeResult').textContent=free;
-  document.getElementById('dfResult').textContent=df;
-  document.getElementById('df').value=df;
 
-  if(df<=0){
-    warning.textContent='This specification produces non-positive degrees of freedom.';
-    warning.style.display='block';
-  } else {
-    warning.style.display='none';
-  }
-}
-document.getElementById('calculate').addEventListener('click',calculate);
-document.getElementById('calcDf').addEventListener('click',calculateDf);
-document.getElementById('reset').addEventListener('click',()=>{
-  setTimeout(()=>{
-    document.getElementById('dfResult').textContent='241';
-    document.getElementById('rDf').textContent='241';
-    document.getElementById('rNcp').textContent='—';
-    document.getElementById('rN').textContent='—';
-    document.getElementById('rDrop').textContent='—';
-    document.getElementById('warning').style.display='none';
-  },0);
-});
-calculate();
-</script>
+      <!-- =========================
+           RESULTS
+      ========================== -->
+      <section class="card">
+        <h2>Results</h2>
+        <p class="sub">
+          Required sample size based on the entered RMSEA,
+          α, power, and df.
+        </p>
+
+        <div class="results">
+
+          <!-- Model df -->
+          <div class="result">
+            <div class="k">
+              Model df
+            </div>
+
+            <div
+              class="v"
+              id="rDf"
+            >
+              13
+            </div>
+          </div>
+
+
+          <!-- Non-centrality -->
+          <div class="result">
+            <div class="k">
+              Required Non-centrality
+            </div>
+            <div
+              class="v"
+              id="rNcp"
+            >
+              —
+            </div>
+          </div>
+
+
+          <!-- Sample size -->
+          <div class="result highlight">
+            <div class="k">
+              Sample size, n
+            </div>
+            <div
+              class="v"
+              id="rN"
+            >
+              —
+            </div>
+          </div>
+
+
+          <!-- Non-response Rate Adjusted -->
+          <div class="result highlight">
+            <div class="k">
+              Sample size with Non-response Rate
+            </div>
+
+            <div
+              class="v"
+              id="rDrop"
+            >
+              —
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="note">
+          The calculation solves for the noncentrality parameter
+          required to attain the requested power, then applies
+          <strong>
+            N = λ / (RMSEA² × df) + 1
+          </strong>.
+          The displayed sample size is rounded up to the next
+          whole participant.
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           SEM DEGREES OF FREEDOM
+      ========================== -->
+      <section class="card full">
+
+        <h2>2. Calculate SEM degrees of freedom</h2>
+
+        <p class="sub">
+          For a full SEM, degrees of freedom are calculated from
+          the number of unique observed covariance elements minus
+          the number of free parameters.
+        </p>
+
+
+        <div
+          class="grid df-grid"
+        >
+
+          <!-- =====================
+               PARAMETER INPUTS
+          ====================== -->
+          <div>
+
+            <!-- Indicators -->
+            <div class="form-row">
+
+              <label for="items">
+                Number of observed indicators (p)
+
+                <span class="help">
+                  Number of Latent Variables times
+                  Number of Statements/Questions per
+                  Latent Variable
+                </span>
+              </label>
+
+              <input
+                id="items"
+                type="number"
+                value="24"
+                min="2"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Factor Loadings -->
+            <div class="form-row">
+
+              <label for="loadings">
+                Free factor loadings
+
+                <span class="help">
+                  (Latent Variables)(Indicators per
+                  Latent Variable - 1)
+                </span>
+              </label>
+
+              <input
+                id="loadings"
+                type="number"
+                value="18"
+                min="0"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Error Variances -->
+            <div class="form-row">
+
+              <label for="errors">
+                Indicator error variances
+              </label>
+
+              <input
+                id="errors"
+                type="number"
+                value="24"
+                min="0"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Exogenous Variances -->
+            <div class="form-row">
+
+              <label for="exoVars">
+                Variances of exogenous latent variables
+              </label>
+
+              <input
+                id="exoVars"
+                type="number"
+                value="4"
+                min="0"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Exogenous Covariances -->
+            <div class="form-row">
+
+              <label for="exoCov">
+
+                Covariances among exogenous latent variables
+
+                <span class="help">
+                  x exogenous factors →
+                  x(x-1)/2 covariances.
+                </span>
+
+              </label>
+
+              <input
+                id="exoCov"
+                type="number"
+                value="6"
+                min="0"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Structural Paths -->
+            <div class="form-row">
+
+              <label for="paths">
+
+                Structural paths
+
+                <span class="help">
+                  Number of Beta Arrows
+                </span>
+
+              </label>
+
+              <input
+                id="paths"
+                type="number"
+                value="5"
+                min="0"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Disturbances -->
+            <div class="form-row">
+
+              <label for="disturbances">
+                Disturbance variances
+              </label>
+
+              <input
+                id="disturbances"
+                type="number"
+                value="2"
+                min="0"
+                step="1"
+              >
+
+            </div>
+
+
+            <!-- Calculate DF -->
+            <div class="buttons">
+
+              <button
+                class="primary"
+                id="calcDf"
+              >
+                Calculate model df
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- =====================
+               DF RESULTS
+          ====================== -->
+          <div>
+
+            <div class="result">
+
+              <div class="k">
+                Unique covariance elements
+              </div>
+
+              <div
+                class="v"
+                id="uniqueResult"
+              >
+                300
+              </div>
+
+            </div>
+
+
+            <div class="result">
+
+              <div class="k">
+                Total free parameters
+              </div>
+
+              <div
+                class="v"
+                id="freeResult"
+              >
+                59
+              </div>
+
+            </div>
+
+
+            <div class="result highlight">
+
+              <div class="k">
+                Calculated model df
+              </div>
+
+              <div
+                class="v"
+                id="dfResult"
+              >
+                241
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+  <footer>
+
+    <div class="container">
+      SEM RMSEA Sample Size Calculator • LJ Ollero (2026)
+    </div>
+
+  </footer>
+
+  <!-- External JavaScript -->
+  <script src="script.js"></script>
+
 </body>
 </html>
+```

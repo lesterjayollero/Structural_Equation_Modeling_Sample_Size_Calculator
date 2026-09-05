@@ -31,230 +31,14 @@
     </header>
 
     <main class="container">
-
-        <div class="grid">
-
-            <!-- =====================================================
-                 SECTION 1: RMSEA POWER ANALYSIS
-                 ===================================================== -->
-
-            <section class="card">
-
-                <h2>1. RMSEA power analysis</h2>
-
-                <p class="sub">
-                    Enter the expected RMSEA, significance level,
-                    statistical power, and model degrees of freedom.
-                </p>
-
-                <div class="form-row">
-                    <label for="rmsea">
-                        Expected RMSEA
-
-                        <span class="help">
-                            Typical value for close fit: 0.05
-                        </span>
-                    </label>
-
-                    <input
-                        id="rmsea"
-                        type="number"
-                        value="0.05"
-                        min="0.001"
-                        max="1"
-                        step="0.01"
-                    >
-                </div>
-
-                <div class="form-row">
-                    <label for="alpha">
-                        Significance level (α)
-
-                        <span class="help">
-                            Two-tailed / conventional significance level
-                        </span>
-                    </label>
-
-                    <input
-                        id="alpha"
-                        type="number"
-                        value="0.05"
-                        min="0.0001"
-                        max="0.9999"
-                        step="0.01"
-                    >
-                </div>
-
-                <div class="form-row">
-                    <label for="power">
-                        Power (1 − β)
-                    </label>
-
-                    <div class="unit">
-                        <input
-                            id="power"
-                            type="number"
-                            value="80"
-                            min="1"
-                            max="99.9"
-                            step="5"
-                        >
-
-                        <span>%</span>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <label for="df">
-                        Degrees of freedom (df)
-
-                        <span class="help">
-                            Calculated below from the SEM measurement model.
-                        </span>
-                    </label>
-
-                    <input
-                        id="df"
-                        type="number"
-                        value="13"
-                        min="1"
-                        step="1"
-                    >
-                </div>
-
-                <div class="form-row">
-                    <label for="dropout">
-                        Expected Non-response rate
-                    </label>
-
-                    <div class="unit">
-                        <input
-                            id="dropout"
-                            type="number"
-                            value="10"
-                            min="0"
-                            max="95"
-                            step="5"
-                        >
-
-                        <span>%</span>
-                    </div>
-                </div>
-
-                <div class="buttons">
-                    <button
-                        class="primary"
-                        id="calculate"
-                    >
-                        Calculate Sample Size
-                    </button>
-
-                    <button
-                        class="secondary"
-                        id="reset"
-                    >
-                        Reset
-                    </button>
-                </div>
-
-                <div
-                    class="warning"
-                    id="warning"
-                ></div>
-
-            </section>
-
-
-            <!-- =====================================================
-                 RESULTS
-                 ===================================================== -->
-
-            <section class="card">
-
-                <h2>Results</h2>
-
-                <p class="sub">
-                    Required sample size based on the entered RMSEA,
-                    α, power, and df.
-                </p>
-
-                <div class="results">
-
-                    <div class="result">
-                        <div class="k">
-                            Model df
-                        </div>
-
-                        <div
-                            class="v"
-                            id="rDf"
-                        >
-                            13
-                        </div>
-                    </div>
-
-                    <div class="result">
-                        <div class="k">
-                            Required Non-centrality
-                        </div>
-
-                        <div
-                            class="v"
-                            id="rNcp"
-                        >
-                            17.847
-                        </div>
-                    </div>
-
-                    <div class="result highlight">
-                        <div class="k">
-                            Sample size, n
-                        </div>
-
-                        <div
-                            class="v"
-                            id="rN"
-                        >
-                            551
-                        </div>
-                    </div>
-
-                    <div class="result highlight">
-                        <div class="k">
-                            Sample size with Non-Response Rate
-                        </div>
-
-                        <div
-                            class="v"
-                            id="rDrop"
-                        >
-                            612
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="note">
-                    The calculation solves for the noncentrality parameter
-                    required to attain the requested power, then applies
-                    <strong>
-                        N = λ / (RMSEA² × df) + 1
-                    </strong>.
-                    The displayed sample size is rounded up to the next
-                    whole participant.
-                </div>
-
-            </section>
-
-
-            <!-- =====================================================
-                 SECTION 2: SEM DEGREES OF FREEDOM
+     <!-- =====================================================
+                 SECTION 1: SEM DEGREES OF FREEDOM
                  ===================================================== -->
 
             <section class="card full">
 
                 <h2>
-                    2. Calculate SEM degrees of freedom
+                    1. Calculate SEM degrees of freedom
                 </h2>
 
                 <p class="sub">
@@ -481,6 +265,222 @@
                 </div>
 
             </section>
+        <div class="grid">
+
+            <!-- =====================================================
+                 SECTION 2: RMSEA POWER ANALYSIS
+                 ===================================================== -->
+
+            <section class="card">
+
+                <h2>2. RMSEA power analysis</h2>
+
+                <p class="sub">
+                    Enter the expected RMSEA, significance level,
+                    statistical power, and model degrees of freedom.
+                </p>
+
+                <div class="form-row">
+                    <label for="rmsea">
+                        Expected RMSEA
+
+                        <span class="help">
+                            Typical value for close fit: 0.05
+                        </span>
+                    </label>
+
+                    <input
+                        id="rmsea"
+                        type="number"
+                        value="0.05"
+                        min="0.001"
+                        max="1"
+                        step="0.01"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <label for="alpha">
+                        Significance level (α)
+
+                        <span class="help">
+                            Two-tailed / conventional significance level
+                        </span>
+                    </label>
+
+                    <input
+                        id="alpha"
+                        type="number"
+                        value="0.05"
+                        min="0.0001"
+                        max="0.9999"
+                        step="0.01"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <label for="power">
+                        Power (1 − β)
+                    </label>
+
+                    <div class="unit">
+                        <input
+                            id="power"
+                            type="number"
+                            value="80"
+                            min="1"
+                            max="99.9"
+                            step="5"
+                        >
+
+                        <span>%</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="df">
+                        Degrees of freedom (df)
+
+                        <span class="help">
+                            Calculated below from the SEM measurement model.
+                        </span>
+                    </label>
+
+                    <input
+                        id="df"
+                        type="number"
+                        value="13"
+                        min="1"
+                        step="1"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <label for="dropout">
+                        Expected Non-response rate
+                    </label>
+
+                    <div class="unit">
+                        <input
+                            id="dropout"
+                            type="number"
+                            value="10"
+                            min="0"
+                            max="95"
+                            step="5"
+                        >
+
+                        <span>%</span>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button
+                        class="primary"
+                        id="calculate"
+                    >
+                        Calculate Sample Size
+                    </button>
+
+                    <button
+                        class="secondary"
+                        id="reset"
+                    >
+                        Reset
+                    </button>
+                </div>
+
+                <div
+                    class="warning"
+                    id="warning"
+                ></div>
+
+            </section>
+
+
+            <!-- =====================================================
+                 RESULTS
+                 ===================================================== -->
+
+            <section class="card">
+
+                <h2>Results</h2>
+
+                <p class="sub">
+                    Required sample size based on the entered RMSEA,
+                    α, power, and df.
+                </p>
+
+                <div class="results">
+
+                    <div class="result">
+                        <div class="k">
+                            Model df
+                        </div>
+
+                        <div
+                            class="v"
+                            id="rDf"
+                        >
+                            13
+                        </div>
+                    </div>
+
+                    <div class="result">
+                        <div class="k">
+                            Required Non-centrality
+                        </div>
+
+                        <div
+                            class="v"
+                            id="rNcp"
+                        >
+                            17.847
+                        </div>
+                    </div>
+
+                    <div class="result highlight">
+                        <div class="k">
+                            Sample size, n
+                        </div>
+
+                        <div
+                            class="v"
+                            id="rN"
+                        >
+                            551
+                        </div>
+                    </div>
+
+                    <div class="result highlight">
+                        <div class="k">
+                            Sample size with Non-Response Rate
+                        </div>
+
+                        <div
+                            class="v"
+                            id="rDrop"
+                        >
+                            612
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="note">
+                    The calculation solves for the noncentrality parameter
+                    required to attain the requested power, then applies
+                    <strong>
+                        N = λ / (RMSEA² × df) + 1
+                    </strong>.
+                    The displayed sample size is rounded up to the next
+                    whole participant.
+                </div>
+
+            </section>
+
+
+           
         
         <div class="grid" style="grid-template-columns: 1fr; box-shadow:none;">
     <section class="card">

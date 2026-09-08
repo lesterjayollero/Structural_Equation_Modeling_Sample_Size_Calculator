@@ -299,6 +299,21 @@
             font-weight: 650;
         }
 
+
+      /* =========================
+   VISITOR COUNTER
+========================= */
+
+      .visitor-counter{
+    margin:40px auto;
+    padding:20px;
+    max-width:420px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:0 4px 12px var(--shadow);
+    text-align:center;
+}
         @media (max-width: 780px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -323,4 +338,14 @@
             .card {
                 padding: 19px;
             }
+        .visitor-counter {
+        max-width: 100%;
+        padding: 10px;
+        overflow-x: auto;
+    }
+
+    .visitor-counter img {
+        max-width: 100%;
+        height: auto;
+    }
         }

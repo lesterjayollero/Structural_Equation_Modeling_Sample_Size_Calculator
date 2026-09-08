@@ -298,7 +298,143 @@
             color: var(--primary);
             font-weight: 650;
         }
+/* =========================
+   TUTORIAL PDF SECTION
+========================= */
 
+.tutorial-section {
+    padding: 28px 0 0;
+}
+
+.tutorial-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.tutorial-header {
+    padding: 25px 25px 20px;
+}
+
+.tutorial-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--soft);
+    color: var(--primary-dark);
+    border: 1px solid #bfdbfe;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.tutorial-header h2 {
+    margin: 12px 0 6px;
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: -.02em;
+}
+
+.tutorial-header p {
+    margin: 0;
+    max-width: 760px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* =========================
+   PDF VIEWER
+========================= */
+
+.pdf-viewer {
+    width: 100%;
+    background: #e5e7eb;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.pdf-viewer iframe {
+    display: block;
+    width: 100%;
+    height: 720px;
+    border: 0;
+}
+
+
+/* =========================
+   PDF FOOTER
+========================= */
+
+.tutorial-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 20px;
+    background: #fafcff;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.tutorial-footer a {
+    text-decoration: none;
+}
+
+.tutorial-footer a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================
+   SPACE BEFORE CALCULATOR
+========================= */
+
+.calculator-section {
+    padding: 28px 0 60px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 780px) {
+
+    .tutorial-section {
+        padding: 20px 0 0;
+    }
+
+    .tutorial-header {
+        padding: 20px;
+    }
+
+    .tutorial-header h2 {
+        font-size: 19px;
+    }
+
+    .tutorial-header p {
+        font-size: 13px;
+    }
+
+    .pdf-viewer iframe {
+        height: 600px;
+    }
+
+    .tutorial-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 13px 18px;
+    }
+
+    .calculator-section {
+        padding: 20px 0 45px;
+    }
+}
 
       /* =========================
    VISITOR COUNTER
